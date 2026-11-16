@@ -22,3 +22,6 @@ dist/
 
 test_foundation.py
 test_postgres_integration.py
+.agents
+.rederive
+skills-lock.json
