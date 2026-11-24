@@ -1,7 +1,6 @@
 import streamlit as st
 
 from frontend.views.projects import page_projects
-from frontend.views.risk import page_risk
 from frontend.views.status import page_status
 from frontend.views.submit import page_submit
 
@@ -41,21 +40,17 @@ st.markdown(
 )
 
 # ── Navigation buttons ────────────────────────────────────────────────────────
-col1, col2, col3, col4, _ = st.columns([1, 1, 1, 1, 5])
+col1, col2, col3, _ = st.columns([1, 1, 1, 6])
 
 with col1:
     if st.button("📝  Submit Project", use_container_width=True):
         st.session_state["page"] = "Submit Project"
 
 with col2:
-    if st.button("🛡️  Risk Assessment", use_container_width=True):
-        st.session_state["page"] = "Risk Assessment"
-
-with col3:
     if st.button("📁  My Projects", use_container_width=True):
         st.session_state["page"] = "My Projects"
 
-with col4:
+with col3:
     if st.button("🔧  System Status", use_container_width=True):
         st.session_state["page"] = "System Status"
 
@@ -69,8 +64,6 @@ page = st.session_state["page"]
 
 if page == "Submit Project":
     page_submit()
-elif page == "Risk Assessment":
-    page_risk()
 elif page == "My Projects":
     page_projects()
 else:
