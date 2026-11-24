@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 
 from database import check_database, configure_engine, initialize_database
 from routers.analysis import router as analysis_router
+from routers.assessments import router as assessments_router
 from routers.projects import router as projects_router
 
 load_dotenv()
@@ -24,7 +25,10 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="Failure Prediction AI",
-    description="Milestone 1 — Data Collection and Market Intelligence",
+    description=(
+        "Project data collection, market intelligence, "
+        "risk assessment, SWOT analysis, and feasibility assessment"
+    ),
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -43,16 +47,25 @@ def health():
 @app.get("/health/db")
 def health_db():
     if not check_database():
-        raise HTTPException(status_code=503, detail="database unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="database unavailable",
+        )
+
     return {"status": "ok"}
 
 
 @app.get("/ready")
 def ready():
     if not check_database():
-        raise HTTPException(status_code=503, detail="database unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="database unavailable",
+        )
+
     return {"status": "ready"}
 
 
 app.include_router(projects_router)
 app.include_router(analysis_router)
+app.include_router(assessments_router)
