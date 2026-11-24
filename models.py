@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from typing import Any, Optional
 
@@ -31,7 +32,9 @@ class Project(Base):
     runway_months: Mapped[Optional[int]] = mapped_column(Integer)
     runway_status: Mapped[Optional[str]] = mapped_column(String(100))
     known_competitors: Mapped[Optional[Any]] = mapped_column(JSON)
-    competitors_status: Mapped[str] = mapped_column(String(20), nullable=False, default="unknown")
+    competitors_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="unknown"
+    )
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now()
     )
@@ -41,20 +44,78 @@ class Project(Base):
         order_by="MarketAnalysis.created_at",
     )
 
+    assessments: Mapped[list["ProjectAssessment"]] = relationship(
+        back_populates="project",
+        order_by="ProjectAssessment.created_at",
+    )
+
 
 class MarketAnalysis(Base):
     __tablename__ = "market_analysis"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    project_id: Mapped[int] = mapped_column(
+        ForeignKey("projects.id"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="pending"
+    )
     model_used: Mapped[Optional[str]] = mapped_column(String(100))
     analysis_json: Mapped[Optional[Any]] = mapped_column(JSON)
     warnings: Mapped[Optional[Any]] = mapped_column(JSON)
     error_message: Mapped[Optional[str]] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
 
-    project: Mapped["Project"] = relationship(back_populates="analyses")
+    project: Mapped["Project"] = relationship(
+        back_populates="analyses"
+    )
+
+
+class ProjectAssessment(Base):
+    __tablename__ = "project_assessments"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+
+    project_id: Mapped[int] = mapped_column(
+        ForeignKey("projects.id"), nullable=False, index=True
+    )
+
+    # Risk assessment
+    risk_score: Mapped[Optional[float]] = mapped_column(Float)
+    risk_level: Mapped[str] = mapped_column(String(20), nullable=False)
+    risk_factors: Mapped[Any] = mapped_column(JSON, nullable=False)
+    risk_explanation: Mapped[str] = mapped_column(Text, nullable=False)
+
+    # SWOT analysis
+    swot_analysis: Mapped[Any] = mapped_column(JSON, nullable=False)
+
+    # Feasibility assessment
+    feasibility_score: Mapped[Optional[float]] = mapped_column(Float)
+    feasibility_verdict: Mapped[str] = mapped_column(
+        String(40), nullable=False
+    )
+    feasibility_explanation: Mapped[str] = mapped_column(
+        Text, nullable=False
+    )
+    feasibility_constraints: Mapped[Any] = mapped_column(
+        JSON, nullable=False
+    )
+
+    # Additional information
+    missing_information: Mapped[Any] = mapped_column(
+        JSON, nullable=False
+    )
+    assumptions: Mapped[Any] = mapped_column(JSON, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now()
+    )
+
+    project: Mapped["Project"] = relationship(
+        back_populates="assessments"
+    )
